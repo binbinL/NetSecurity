@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        p {
+            font-size: 30px;
+            color: crimson;
+        }
+
+        nopass {
+            color: crimson;
+        }
+
+        body {
+            background-image: url("/static/img/001.jpg");
+            background-size: 100%;
+        }
+    </style>
+    <script src='static/js/jquery-3.6.0.min.js'></script>
+    <script src="static/js/echarts.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/success.css" />
+    <script>
+        function loadTable() {
+            var data = document.getElementById("data").value;
+            console.log("data:");
+            console.log(data);
+            $.ajax({
+                url: '/',
+                type: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: {
+                    data: data,
+                },
+                success: function (res) {
+                    console.log(res);
+                    var obj = JSON.parse(res);
+                    console.log(obj.code);
+                    if (obj.code == 400) {
+                        alert(obj.msg);
+                        window.location.href = "http://127.0.0.1:5000/"
+                    }
+                    if (obj.code == 200) {
+                        document.getElementById("main").style.display = "block";
+                        document.getElementById("center").style.display = "none";
+                        var chartDom = document.getElementById('main');
+                        var myChart = echarts.init(chartDom);
+                        var option;
+                        option = {
+                            legend: {
+                                top: 'bottom',
+                                textStyle: {
+                                    color: 'white',
+                                },
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    mark: { show: true },
+                                    dataView: { show: true, readOnly: false },
+                                    restore: { show: true },
+                                }
+                            },
+                            series: [
+                                {
+                                    name: 'Attack Types Chart',
+                                    type: 'pie',
+                                    radius: [60, 240],
+                                    center: ['50%', '50%'],
+                                    roseType: 'area',
+                                    itemStyle: {
+                                        borderRadius: 10,
+                                        normal: {
+                                            label: {
+                                                show: true,
+                                                textStyle: {
+                                                    fontSize: 25,
+                                                    color: '#F8F8FF'
+                                                },
+                                                formatter: function (params) {
+                                                    return params.name + "\n" + params.value;    //展示文字 + 数值
+                                                }
+                                            }
+                                        }
+                                    },
+                                    data: obj.data
+                                }
+                            ]
+                        };
+                        option && myChart.setOption(option);
+                    }
+
+                },
+                error: function (e) {
+                    alert("error");
+                }
+            })
+        }
+
+
+    </script>
+</head>
+
+<body>
+    <center>
+        <div id="center">
+            <h1><br><br><br><br><br><br><br><b>
+                    <font face="楷体" color="white">欢迎使用网络入侵检测系统</font>
+                </b></h1><br>
+            <input id="data" class="data" style="width:260px;height:30px" type="text" placeholder="请输入特征数据，以' , '分割"
+                name="data">
+            <p>
+                <button class="but" onclick="loadTable()">预测</button>
+            </p>
+        </div>
+        <p>
+        <div style="position: absolute; bottom: 20px; right: 20px;"><i>
+                <font color="white">By:四菜一汤</font>
+            </i></div>
+        </p>
+        <div hidden id="main" style="width: 100% ;height: 800px;"></div>
+    </center>
+</body>
+
+</html>
